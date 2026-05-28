@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unity UI Restore Plugin Showcase</title>
+  <style>
+    :root {
+      --bg: #202124;
+      --panel: #2f3033;
+      --panel2: #383a3f;
+      --line: #555961;
+      --text: #ece7dc;
+      --muted: #ada99f;
+      --accent: #5fd6c8;
+      --gold: #f3c35b;
+      --green: #8ad36a;
+      --red: #ef7b6d;
+      --blue: #80b7ff;
+      --canvas: #172030;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #151618;
+      color: var(--text);
+      font-family: "Avenir Next", "Helvetica Neue", "PingFang SC", sans-serif;
+    }
+
+    .poster {
+      width: 1600px;
+      height: 1000px;
+      padding: 34px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.04), transparent 36%),
+        radial-gradient(circle at 72% 18%, rgba(95,214,200,0.12), transparent 28%),
+        radial-gradient(circle at 16% 92%, rgba(243,195,91,0.11), transparent 26%),
+        var(--bg);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .titlebar {
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .unity-mark {
+      width: 50px;
+      height: 50px;
+      border: 2px solid var(--text);
+      transform: rotate(45deg);
+      position: relative;
+      opacity: 0.95;
+    }
+
+    .unity-mark:before,
+    .unity-mark:after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--text);
+      background: var(--bg);
+    }
+
+    .unity-mark:before { left: -12px; top: 12px; }
+    .unity-mark:after { right: 12px; bottom: -12px; }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1;
+      letter-spacing: 0;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .badges {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .badge {
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.06);
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 15px;
+      color: #e9e4d8;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 418px 1fr 390px;
+      gap: 18px;
+      height: 826px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid #474a50;
+      border-radius: 7px;
+      box-shadow: 0 18px 46px rgba(0,0,0,0.32);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 13px;
+      background: #252629;
+      border-bottom: 1px solid #464950;
+      font-size: 14px;
+      color: #d9d5ca;
+      font-weight: 700;
+    }
+
+    .traffic {
+      display: flex;
+      gap: 7px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #72767d;
+    }
+
+    .plugin {
+      padding: 14px;
+    }
+
+    .label {
+      color: #c6c0b3;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .field {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      border: 1px solid #555960;
+      background: #1f2023;
+      border-radius: 4px;
+      color: #f1eee6;
+      padding: 0 10px;
+      font-size: 13px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .field span {
+      color: var(--accent);
+      margin-right: 7px;
+      font-weight: 700;
+    }
+
+    .button {
+      margin-top: 11px;
+      height: 43px;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #60646c, #4a4d53);
+      border: 1px solid #777b83;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #f4efe4;
+      font-size: 15px;
+    }
+
+    .status {
+      margin-top: 12px;
+      background: #242a25;
+      border: 1px solid rgba(138,211,106,0.52);
+      color: #dff4d5;
+      min-height: 54px;
+      padding: 9px 11px;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .stats {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat {
+      background: #26282c;
+      border: 1px solid #4b4e55;
+      border-radius: 5px;
+      padding: 9px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .manifest {
+      margin-top: 16px;
+      border-top: 1px solid #494c52;
+      padding-top: 14px;
+    }
+
+    .rows {
+      display: grid;
+      grid-template-columns: 104px 1fr;
+      row-gap: 8px;
+      font-size: 13px;
+    }
+
+    .rows .k { color: #a9a397; }
+    .rows .v { color: #f0eadf; }
+
+    .assets {
+      margin-top: 18px;
+    }
+
+    .asset-grid {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+    }
+
+    .asset {
+      height: 64px;
+      border-radius: 5px;
+      background: #202226;
+      border: 1px solid #484c54;
+      padding: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .asset:before {
+      content: "";
+      position: absolute;
+      inset: 8px 10px 22px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, rgba(128,183,255,0.9), rgba(95,214,200,0.86));
+      opacity: 0.8;
+    }
+
+    .asset:nth-child(2):before { background: linear-gradient(135deg, #f3c35b, #ef7b6d); }
+    .asset:nth-child(3):before { background: linear-gradient(135deg, #8ad36a, #5fd6c8); }
+    .asset:nth-child(4):before { background: linear-gradient(135deg, #f6e2a1, #80b7ff); }
+    .asset:nth-child(5):before { background: linear-gradient(135deg, #ef7b6d, #f3c35b); }
+    .asset:nth-child(6):before { background: linear-gradient(135deg, #b9a7ff, #80b7ff); }
+    .asset:nth-child(7):before { background: linear-gradient(135deg, #5fd6c8, #8ad36a); }
+    .asset:nth-child(8):before { background: linear-gradient(135deg, #fff3be, #f3c35b); }
+
+    .asset em {
+      position: absolute;
+      left: 7px;
+      right: 7px;
+      bottom: 5px;
+      font-style: normal;
+      font-size: 10px;
+      color: #d8d4ca;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .center-stage {
+      display: grid;
+      grid-template-rows: 548px 260px;
+      gap: 18px;
+    }
+
+    .game-view {
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(16,33,54,0.86), rgba(18,26,35,0.92)),
+        var(--canvas);
+    }
+
+    .game-toolbar {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      background: #26282c;
+      border-bottom: 1px solid #464950;
+      color: #d8d1c3;
+      font-size: 13px;
+    }
+
+    .screen {
+      position: absolute;
+      left: 64px;
+      right: 64px;
+      top: 58px;
+      bottom: 34px;
+      background:
+        linear-gradient(180deg, rgba(47,80,117,0.92), rgba(28,39,54,0.92)),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 6px, transparent 6px 14px);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.17);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), 0 30px 80px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+
+    .game-bg-sun {
+      position: absolute;
+      width: 210px;
+      height: 210px;
+      right: 64px;
+      top: 46px;
+      border-radius: 50%;
+      background: rgba(243,195,91,0.42);
+      filter: blur(2px);
+    }
+
+    .cloud {
+      position: absolute;
+      height: 28px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.28);
+    }
+
+    .cloud.one { width: 126px; left: 70px; top: 72px; }
+    .cloud.two { width: 94px; right: 250px; top: 142px; }
+
+    .hud-top {
+      position: absolute;
+      left: 26px;
+      right: 26px;
+      top: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pill {
+      height: 36px;
+      min-width: 116px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 5px;
+      background: rgba(18,22,30,0.72);
+      border: 1px solid rgba(255,255,255,0.17);
+      color: #f5ead0;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .coin {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,0.22);
+    }
+
+    .hero-panel {
+      position: absolute;
+      left: 50%;
+      top: 52%;
+      width: 420px;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(180deg, rgba(47,52,67,0.94), rgba(29,33,43,0.96));
+      border: 2px solid rgba(243,195,91,0.8);
+      border-radius: 8px;
+      padding: 24px 26px;
+      box-shadow: 0 28px 80px rgba(0,0,0,0.42);
+    }
+
+    .hero-panel h2 {
+      margin: 0 0 10px;
+      text-align: center;
+      color: #ffe8a3;
+      font-size: 31px;
+      letter-spacing: 0;
+    }
+
+    .hero-card {
+      height: 132px;
+      background:
+        linear-gradient(90deg, rgba(128,183,255,0.2), transparent),
+        #202735;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      gap: 18px;
+    }
+
+    .avatar {
+      width: 86px;
+      height: 86px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 48% 30%, #ffe0a6 0 22%, transparent 23%),
+        linear-gradient(180deg, #78d0c6, #2b6770);
+      border: 3px solid rgba(255,255,255,0.38);
+    }
+
+    .bars {
+      flex: 1;
+    }
+
+    .bar {
+      height: 18px;
+      border-radius: 3px;
+      background: #111821;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--accent));
+    }
+
+    .start {
+      margin: 18px auto 0;
+      width: 210px;
+      height: 56px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #ffd56d, #d9862f);
+      border: 2px solid #fff0ad;
+      box-shadow: 0 9px 0 #8a4b1e, 0 18px 36px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4d2a16;
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .callout {
+      position: absolute;
+      border: 1px solid rgba(95,214,200,0.8);
+      color: #d8fff9;
+      background: rgba(20,34,38,0.82);
+      border-radius: 4px;
+      padding: 7px 9px;
+      font-size: 12px;
+    }
+
+    .callout.a { left: 30px; bottom: 24px; }
+    .callout.b { right: 30px; bottom: 24px; }
+
+    .flow {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      background: #2b2d31;
+    }
+
+    .flow-card {
+      background: #23252a;
+      border: 1px solid #4b4e55;
+      border-radius: 6px;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .flow-card h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      color: #fff2cc;
+    }
+
+    .code {
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: #d8d2c7;
+      line-height: 1.55;
+    }
+
+    .ok { color: var(--green); }
+    .cyan { color: var(--accent); }
+    .yellow { color: var(--gold); }
+
+    .hierarchy {
+      padding: 12px 12px 16px;
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.53;
+      background: #2f3033;
+      height: calc(100% - 38px);
+      overflow: hidden;
+    }
+
+    .node {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 22px;
+      color: #ddd8cc;
+      white-space: nowrap;
+    }
+
+    .indent-1 { padding-left: 18px; }
+    .indent-2 { padding-left: 36px; }
+    .indent-3 { padding-left: 54px; }
+    .indent-4 { padding-left: 72px; }
+
+    .tri { color: #b7b1a5; }
+    .folder { color: var(--gold); }
+    .rect { color: var(--accent); }
+    .img { color: var(--blue); }
+
+    .node.control {
+      background: rgba(95,214,200,0.1);
+      border-left: 3px solid var(--accent);
+      margin: 1px 0;
+      padding-left: 5px;
+      color: #effffb;
+    }
+
+    .note {
+      position: absolute;
+      left: 34px;
+      right: 34px;
+      bottom: 18px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #c8c2b5;
+      font-size: 14px;
+    }
+
+    .note strong { color: #f5e4b0; }
+  </style>
+</head>
+<body>
+  <main class="poster">
+    <section class="titlebar">
+      <div class="brand">
+        <div class="unity-mark"></div>
+        <div>
+          <h1>Unity UI Restore Plugin</h1>
+          <div class="subtitle">从 PSD Auto Slicer 的 PNG + export_manifest.json 一键还原 UGUI 界面</div>
+        </div>
+      </div>
+      <div class="badges">
+        <div class="badge">UGUI Prefab</div>
+        <div class="badge">Hash rename matching</div>
+        <div class="badge">Control nodes</div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <aside class="panel">
+        <div class="panel-head">
+          <span>PSD UI Restore</span>
+          <div class="traffic"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+        </div>
+        <div class="plugin">
+          <div class="label">Export Folder</div>
+          <div class="field"><span>↳</span>D:/Game/Assets/UIExports/Login</div>
+          <div class="button">Build UGUI Prefab</div>
+          <div class="status">
+            Generated 35 Image nodes, missing 0.<br />
+            Hash: 4, same-folder size: 2.<br />
+            Prefab saved at Assets/PSDUIRestore/Generated/Login.prefab
+          </div>
+
+          <div class="stats">
+            <div class="stat"><strong>35</strong><span>manifest items</span></div>
+            <div class="stat"><strong>10</strong><span>control nodes</span></div>
+            <div class="stat"><strong>0</strong><span>missing PNGs</span></div>
+          </div>
+
+          <div class="manifest">
+            <div class="label">Manifest</div>
+            <div class="rows">
+              <div class="k">Tool</div><div class="v">PSD Auto Slicer</div>
+              <div class="k">Version</div><div class="v">0.2.49</div>
+              <div class="k">Source</div><div class="v">Login_Start.psd</div>
+              <div class="k">Canvas Size</div><div class="v">640 x 1500</div>
+              <div class="k">Identity</div><div class="v">assetId + sha256</div>
+            </div>
+          </div>
+
+          <div class="assets">
+            <div class="label">Resource Folder</div>
+            <div class="asset-grid">
+              <div class="asset"><em>Bg_Login_renamed.png</em></div>
+              <div class="asset"><em>Panel_Main.png</em></div>
+              <div class="asset"><em>Btn_Start_v2.png</em></div>
+              <div class="asset"><em>Icon_Gem.png</em></div>
+              <div class="asset"><em>Top_Bar.png</em></div>
+              <div class="asset"><em>AvatarHero.png</em></div>
+              <div class="asset"><em>Font_Title.png</em></div>
+              <div class="asset"><em>Fx_Glow.png</em></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="center-stage">
+        <div class="panel game-view">
+          <div class="game-toolbar"><span>Game View · Restored Canvas</span><span>Scale 1x · 640×1500 source</span></div>
+          <div class="screen">
+            <div class="game-bg-sun"></div>
+            <div class="cloud one"></div>
+            <div class="cloud two"></div>
+            <div class="hud-top">
+              <div class="pill"><i class="coin"></i> 12,480</div>
+              <div class="pill"><i class="coin"></i> 860</div>
+            </div>
+            <div class="hero-panel">
+              <h2>START ADVENTURE</h2>
+              <div class="hero-card">
+                <div class="avatar"></div>
+                <div class="bars">
+                  <div class="bar"><span style="width:82%"></span></div>
+                  <div class="bar"><span style="width:64%"></span></div>
+                  <div class="bar"><span style="width:44%"></span></div>
+                </div>
+              </div>
+              <div class="start">START</div>
+            </div>
+            <div class="callout a">renamed PNG → sha256 matched</div>
+            <div class="callout b">layerPath → stable hierarchy</div>
+          </div>
+        </div>
+
+        <div class="panel flow">
+          <div class="flow-card">
+            <h3>1. Drag Export Folder</h3>
+            <div class="code">
+              <span class="cyan">export_manifest.json</span><br />
+              Bg_Login_renamed.png<br />
+              Btn_Start_v2.png<br />
+              Panel_Main.png
+            </div>
+          </div>
+          <div class="flow-card">
+            <h3>2. Resolve Resources</h3>
+            <div class="code">
+              <span class="ok">✓</span> file name match<br />
+              <span class="ok">✓</span> sha256 after rename<br />
+              <span class="ok">✓</span> same-folder size fallback
+            </div>
+          </div>
+          <div class="flow-card">
+            <h3>3. Generate Prefab</h3>
+            <div class="code">
+              CanvasScaler reference<br />
+              RectTransform restored<br />
+              Image/Sliced Image nodes<br />
+              <span class="yellow">10 control anchors</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="panel-head">
+          <span>Hierarchy</span>
+          <span>Login.prefab</span>
+        </div>
+        <div class="hierarchy">
+          <div class="node"><span class="tri">▾</span><span class="folder">▣</span> Login_Canvas</div>
+          <div class="node control indent-1"><span class="rect">□</span> Bg <span class="cyan">stretch/stretch</span></div>
+          <div class="node indent-2"><span class="img">▧</span> Bg_Login_renamed</div>
+          <div class="node control indent-1"><span class="rect">□</span> Top <span class="cyan">top/stretch</span></div>
+          <div class="node indent-2"><span class="img">▧</span> Top_Bar</div>
+          <div class="node control indent-1"><span class="rect">□</span> TopLeft <span class="cyan">top/left</span></div>
+          <div class="node indent-2"><span class="img">▧</span> Icon_Player</div>
+          <div class="node control indent-1"><span class="rect">□</span> TopRight <span class="cyan">top/right</span></div>
+          <div class="node indent-2"><span class="img">▧</span> CurrencyGroup</div>
+          <div class="node control indent-1"><span class="rect">□</span> Left <span class="cyan">middle/left</span></div>
+          <div class="node control indent-1"><span class="rect">□</span> Center <span class="cyan">stretch/stretch</span></div>
+          <div class="node indent-2"><span class="tri">▾</span><span class="folder">▣</span> Panel</div>
+          <div class="node indent-3"><span class="img">▧</span> Panel_Main</div>
+          <div class="node indent-3"><span class="img">▧</span> AvatarHero</div>
+          <div class="node indent-3"><span class="img">▧</span> Font_Title</div>
+          <div class="node indent-2"><span class="tri">▾</span><span class="folder">▣</span> Btn</div>
+          <div class="node indent-3"><span class="img">▧</span> Btn_Start_v2</div>
+          <div class="node indent-3"><span class="img">▧</span> Btn_Close</div>
+          <div class="node control indent-1"><span class="rect">□</span> Right <span class="cyan">middle/right</span></div>
+          <div class="node control indent-1"><span class="rect">□</span> Bottom <span class="cyan">bottom/stretch</span></div>
+          <div class="node indent-2"><span class="img">▧</span> Bottom_Menu</div>
+          <div class="node control indent-1"><span class="rect">□</span> BottomLeft <span class="cyan">bottom/left</span></div>
+          <div class="node control indent-1"><span class="rect">□</span> BottomRight <span class="cyan">bottom/right</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <div class="note">
+      <span><strong>Plugin capability:</strong> drag export folder → match renamed resources → rebuild UGUI prefab with usable control anchors.</span>
+      <span>PSD Auto Slicer 0.2.49 + Unity UI Restore MVP</span>
+    </div>
+  </main>
+</body>
+</html>

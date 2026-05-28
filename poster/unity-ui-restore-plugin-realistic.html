@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unity UI Restore Plugin Realistic Showcase</title>
+  <style>
+    :root {
+      --u-bg: #2f3033;
+      --u-dark: #242528;
+      --u-darker: #1e1f22;
+      --u-panel: #38393d;
+      --u-panel2: #333438;
+      --u-line: #1a1b1d;
+      --u-line2: #4a4b50;
+      --u-text: #d7d3ca;
+      --u-muted: #a9a59c;
+      --u-blue: #3f7fbf;
+      --u-selected: #315b83;
+      --u-field: #222326;
+      --u-button: #56575b;
+      --green: #8dcf72;
+      --cyan: #77d8d0;
+      --gold: #e0b85c;
+      --red: #e27766;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #17181a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--u-text);
+    }
+
+    .unity {
+      width: 1920px;
+      height: 1080px;
+      background: var(--u-bg);
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 0 0 1px #111;
+    }
+
+    .osbar {
+      height: 32px;
+      background: #202124;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 14px;
+      color: #d6d2c8;
+      font-size: 13px;
+      border-bottom: 1px solid #111;
+    }
+
+    .traffic { display: flex; gap: 8px; }
+    .traffic i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+    .traffic i:nth-child(1) { background: #ef6a5f; }
+    .traffic i:nth-child(2) { background: #f2bd4b; }
+    .traffic i:nth-child(3) { background: #61c554; }
+    .app-title { flex: 1; text-align: center; color: #c9c4b9; }
+
+    .menu {
+      height: 30px;
+      background: #2b2c2f;
+      border-bottom: 1px solid #191a1c;
+      display: flex;
+      align-items: center;
+      padding: 0 11px;
+      gap: 21px;
+      font-size: 13px;
+      color: #ddd8cf;
+    }
+
+    .toolbar {
+      height: 44px;
+      background: #35363a;
+      border-bottom: 1px solid #1f2022;
+      display: grid;
+      grid-template-columns: 320px 1fr 330px;
+      align-items: center;
+      padding: 0 11px;
+      font-size: 13px;
+    }
+
+    .tools { display: flex; gap: 7px; }
+    .tool {
+      width: 34px;
+      height: 28px;
+      border: 1px solid #1d1e20;
+      background: linear-gradient(#44464b, #333438);
+      border-radius: 3px;
+      display: grid;
+      place-items: center;
+      color: #dad6cc;
+    }
+
+    .play {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .play .tool { width: 42px; }
+    .layout-select { justify-self: end; color: #beb9af; }
+
+    .editor {
+      height: calc(100% - 106px);
+      display: grid;
+      grid-template-columns: 300px 1fr 350px;
+      grid-template-rows: 1fr 275px;
+      gap: 4px;
+      padding: 4px;
+      background: #242528;
+    }
+
+    .panel {
+      background: var(--u-panel);
+      border: 1px solid #17181a;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .tabbar {
+      height: 29px;
+      display: flex;
+      align-items: flex-end;
+      background: #292a2d;
+      border-bottom: 1px solid #1b1c1e;
+    }
+
+    .tab {
+      height: 28px;
+      padding: 6px 12px 0;
+      background: #38393d;
+      border-right: 1px solid #222326;
+      color: #d7d3ca;
+      font-size: 13px;
+    }
+
+    .tab.dim {
+      background: #2e2f33;
+      color: #9f9b92;
+    }
+
+    .hierarchy {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .scene {
+      grid-column: 2;
+      grid-row: 1;
+      background: #202124;
+    }
+
+    .inspector {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+    }
+
+    .project {
+      grid-column: 1 / span 2;
+      grid-row: 2;
+    }
+
+    .game-toolbar {
+      height: 34px;
+      background: #303136;
+      border-bottom: 1px solid #202124;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font-size: 12px;
+      color: #bbb6ad;
+    }
+
+    .game-area {
+      height: calc(100% - 63px);
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(45deg, #26272b 25%, transparent 25%),
+        linear-gradient(-45deg, #26272b 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #26272b 75%),
+        linear-gradient(-45deg, transparent 75%, #26272b 75%),
+        #222327;
+      background-size: 28px 28px;
+      background-position: 0 0, 0 14px, 14px -14px, -14px 0;
+    }
+
+    .phone {
+      width: 332px;
+      height: 720px;
+      background: #152235;
+      border: 1px solid #141518;
+      box-shadow: 0 0 0 1px #4d5562, 0 30px 80px rgba(0,0,0,0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phone:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 82% 10%, rgba(227,183,89,0.35), transparent 26%),
+        linear-gradient(180deg, #244967 0%, #18263a 52%, #111924 100%);
+    }
+
+    .mountain {
+      position: absolute;
+      left: -60px;
+      right: -60px;
+      bottom: 0;
+      height: 250px;
+      background:
+        linear-gradient(135deg, transparent 0 45%, #31445d 46% 54%, transparent 55%),
+        linear-gradient(45deg, transparent 0 48%, #24364d 49% 59%, transparent 60%);
+      opacity: 0.95;
+    }
+
+    .top-hud {
+      position: absolute;
+      top: 18px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .hud-pill {
+      height: 26px;
+      min-width: 92px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(15,20,30,0.76);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 8px;
+      font-weight: 700;
+      font-size: 12px;
+      color: #f3e7c6;
+    }
+
+    .coin {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #e0b85c;
+    }
+
+    .modal {
+      position: absolute;
+      width: 264px;
+      left: 34px;
+      top: 222px;
+      padding: 17px 18px 20px;
+      background: linear-gradient(#394051, #252b38);
+      border: 2px solid #e0b85c;
+      border-radius: 5px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.38);
+    }
+
+    .modal h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      text-align: center;
+      color: #ffe6a4;
+    }
+
+    .avatar-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #202838;
+      border: 1px solid rgba(255,255,255,0.13);
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 30%, #ffd99d 0 22%, transparent 23%),
+        linear-gradient(#72cfc1, #245b66);
+      border: 2px solid rgba(255,255,255,0.35);
+    }
+
+    .bars { flex: 1; }
+    .bar {
+      height: 10px;
+      background: #10151e;
+      margin: 7px 0;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #8dcf72, #77d8d0);
+    }
+
+    .start {
+      width: 150px;
+      height: 42px;
+      margin: 15px auto 0;
+      border: 2px solid #ffe8a0;
+      border-radius: 5px;
+      background: linear-gradient(#ffd669, #d7892f);
+      color: #4c2b17;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 18px;
+      box-shadow: 0 6px 0 #8c4b1e;
+    }
+
+    .tree {
+      padding: 8px 7px;
+      font-family: Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.58;
+      color: #d6d1c8;
+    }
+
+    .row {
+      height: 22px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .row.sel { background: var(--u-selected); color: #fff; }
+    .indent1 { padding-left: 15px; }
+    .indent2 { padding-left: 30px; }
+    .indent3 { padding-left: 45px; }
+    .control { color: #defaf7; }
+    .control .ico { color: var(--cyan); }
+    .folder { color: #e0b85c; }
+    .img { color: #8dbfff; }
+    .muted { color: var(--u-muted); }
+
+    .project-body {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      height: calc(100% - 29px);
+    }
+
+    .folders {
+      border-right: 1px solid #222326;
+      padding: 8px 8px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #d2cdc3;
+    }
+
+    .assets {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(9, 94px);
+      grid-auto-rows: 112px;
+      gap: 8px;
+      align-content: start;
+      overflow: hidden;
+    }
+
+    .asset {
+      text-align: center;
+      font-size: 11px;
+      color: #cfcac0;
+      overflow: hidden;
+    }
+
+    .thumb {
+      width: 76px;
+      height: 70px;
+      margin: 0 auto 5px;
+      background: #25272c;
+      border: 1px solid #555860;
+      position: relative;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .thumb:before {
+      content: "";
+      position: absolute;
+      inset: 12px 14px 20px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, #77d8d0, #8dbfff);
+    }
+    .asset:nth-child(2) .thumb:before { background: linear-gradient(135deg, #e0b85c, #e27766); }
+    .asset:nth-child(3) .thumb:before { background: linear-gradient(135deg, #8dcf72, #77d8d0); }
+    .asset:nth-child(4) .thumb:before { background: linear-gradient(135deg, #e2d18c, #8dbfff); }
+    .asset:nth-child(5) .thumb:before { background: linear-gradient(135deg, #a996ff, #8dbfff); }
+
+    .asset-name {
+      width: 88px;
+      margin: auto;
+      white-space: normal;
+      line-height: 1.2;
+    }
+
+    .inspector-body {
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    .inspector-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #4b4d52;
+      padding-bottom: 9px;
+      margin-bottom: 10px;
+    }
+
+    .checkbox {
+      width: 14px;
+      height: 14px;
+      border: 1px solid #888;
+      background: #ddd;
+    }
+
+    .component {
+      margin-top: 8px;
+      border: 1px solid #242528;
+      background: #303136;
+    }
+
+    .component h3 {
+      margin: 0;
+      padding: 7px 8px;
+      background: #3c3d42;
+      font-size: 12px;
+      font-weight: 600;
+      border-bottom: 1px solid #242528;
+    }
+
+    .component .kv {
+      display: grid;
+      grid-template-columns: 108px 1fr;
+      gap: 5px 8px;
+      padding: 8px;
+      color: #cfcac0;
+    }
+
+    .field {
+      background: #222326;
+      border: 1px solid #1a1b1d;
+      min-height: 18px;
+      padding: 2px 5px;
+      color: #e0dcd2;
+    }
+
+    .plugin-window {
+      position: absolute;
+      left: 474px;
+      top: 176px;
+      width: 555px;
+      height: 568px;
+      background: #343537;
+      border: 1px solid #1a1b1d;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.55);
+      z-index: 5;
+    }
+
+    .plugin-title {
+      height: 30px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      background: #2b2c2e;
+      border-bottom: 1px solid #1a1b1d;
+      font-size: 13px;
+      justify-content: space-between;
+    }
+
+    .plugin-body {
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    .plugin-label {
+      margin: 3px 0 5px;
+      color: #d8d3c9;
+    }
+
+    .path-row {
+      display: grid;
+      grid-template-columns: 1fr 82px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .path {
+      height: 26px;
+      background: #222326;
+      border: 1px solid #1c1d20;
+      color: #ddd9cf;
+      padding: 4px 7px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn {
+      height: 26px;
+      background: #56575b;
+      border: 1px solid #686a70;
+      color: #eee9df;
+      display: grid;
+      place-items: center;
+    }
+
+    .info {
+      margin: 9px 0;
+      min-height: 54px;
+      background: #2f3930;
+      border: 1px solid rgba(141,207,114,0.55);
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 8px;
+      padding: 8px;
+      color: #dff5d6;
+      line-height: 1.35;
+      font-size: 12px;
+    }
+
+    .info-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #dce7d8;
+      color: #2b2c2e;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 19px;
+    }
+
+    .build {
+      height: 32px;
+      background: #57585c;
+      border: 1px solid #696b70;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      color: #f1ede3;
+    }
+
+    .manifest-table {
+      display: grid;
+      grid-template-columns: 154px 1fr;
+      row-gap: 7px;
+      color: #d5d0c6;
+      font-size: 13px;
+    }
+
+    .manifest-table .k { color: #b5b0a6; }
+
+    .plugin-section {
+      margin-top: 14px;
+      font-weight: 600;
+      color: #f0ece2;
+    }
+
+    .match-list {
+      margin-top: 8px;
+      color: #cbc6bd;
+      line-height: 1.6;
+      font-size: 12px;
+    }
+
+    .tag {
+      color: #9ce4dc;
+      font-family: Menlo, Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="unity">
+    <div class="osbar">
+      <div class="traffic"><i></i><i></i><i></i></div>
+      <div>Unity 2022.3 · GirlsGame - LoginScene</div>
+      <div class="app-title">Unity UI Restore Plugin Demo</div>
+      <div>Account · Layout · Layers</div>
+    </div>
+    <div class="menu">
+      <span>File</span><span>Edit</span><span>Assets</span><span>GameObject</span><span>Component</span><span>Tools</span><span>Window</span><span>Help</span>
+    </div>
+    <div class="toolbar">
+      <div class="tools"><div class="tool">↕</div><div class="tool">↔</div><div class="tool">⟳</div><div class="tool">▢</div><div class="tool">✋</div></div>
+      <div class="play"><div class="tool">▶</div><div class="tool">Ⅱ</div><div class="tool">▣</div></div>
+      <div class="layout-select">Layers ▾ &nbsp;&nbsp; Layout: Default ▾</div>
+    </div>
+
+    <div class="editor">
+      <section class="panel hierarchy">
+        <div class="tabbar"><div class="tab">Hierarchy</div></div>
+        <div class="tree">
+          <div class="row sel"><span>▾</span><span class="folder">▣</span> Login_Canvas</div>
+          <div class="row indent1 control"><span class="ico">□</span> Bg <span class="muted">stretch/stretch</span></div>
+          <div class="row indent2"><span class="img">▧</span> Bg_Login_renamed</div>
+          <div class="row indent1 control"><span class="ico">□</span> Top <span class="muted">top/stretch</span></div>
+          <div class="row indent2"><span class="img">▧</span> Top_Bar</div>
+          <div class="row indent1 control"><span class="ico">□</span> TopLeft</div>
+          <div class="row indent2"><span class="img">▧</span> Icon_Player</div>
+          <div class="row indent1 control"><span class="ico">□</span> TopRight</div>
+          <div class="row indent2"><span class="img">▧</span> Currency_Gold</div>
+          <div class="row indent2"><span class="img">▧</span> Currency_Gem</div>
+          <div class="row indent1 control"><span class="ico">□</span> Left</div>
+          <div class="row indent1 control"><span class="ico">□</span> Center <span class="muted">stretch/stretch</span></div>
+          <div class="row indent2"><span>▾</span><span class="folder">▣</span> Panel</div>
+          <div class="row indent3"><span class="img">▧</span> Panel_Main</div>
+          <div class="row indent3"><span class="img">▧</span> Font_Title</div>
+          <div class="row indent3"><span class="img">▧</span> AvatarHero</div>
+          <div class="row indent2"><span>▾</span><span class="folder">▣</span> Btn</div>
+          <div class="row indent3"><span class="img">▧</span> Btn_Start_v2</div>
+          <div class="row indent3"><span class="img">▧</span> Btn_Close</div>
+          <div class="row indent1 control"><span class="ico">□</span> Right</div>
+          <div class="row indent1 control"><span class="ico">□</span> Bottom</div>
+          <div class="row indent2"><span class="img">▧</span> Bottom_Menu</div>
+          <div class="row indent1 control"><span class="ico">□</span> BottomLeft</div>
+          <div class="row indent1 control"><span class="ico">□</span> BottomRight</div>
+        </div>
+      </section>
+
+      <section class="panel scene">
+        <div class="tabbar"><div class="tab dim">Scene</div><div class="tab">Game</div><div class="tab dim">Animator</div></div>
+        <div class="game-toolbar">
+          <span>Display 1 · Free Aspect · Scale 0.65x</span>
+          <span>Stats | Gizmos</span>
+        </div>
+        <div class="game-area">
+          <div class="phone">
+            <div class="mountain"></div>
+            <div class="top-hud">
+              <div class="hud-pill"><i class="coin"></i>12,480</div>
+              <div class="hud-pill"><i class="coin"></i>860</div>
+            </div>
+            <div class="modal">
+              <h2>START ADVENTURE</h2>
+              <div class="avatar-row">
+                <div class="avatar"></div>
+                <div class="bars">
+                  <div class="bar"><i style="width:82%"></i></div>
+                  <div class="bar"><i style="width:64%"></i></div>
+                  <div class="bar"><i style="width:44%"></i></div>
+                </div>
+              </div>
+              <div class="start">START</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel inspector">
+        <div class="tabbar"><div class="tab">Inspector</div></div>
+        <div class="inspector-body">
+          <div class="inspector-title"><div class="checkbox"></div><strong>Login_Canvas</strong><span class="muted">Prefab Instance</span></div>
+          <div class="component">
+            <h3>Rect Transform</h3>
+            <div class="kv">
+              <span>Pos X</span><span class="field">0</span>
+              <span>Pos Y</span><span class="field">0</span>
+              <span>Width</span><span class="field">640</span>
+              <span>Height</span><span class="field">1500</span>
+            </div>
+          </div>
+          <div class="component">
+            <h3>Canvas</h3>
+            <div class="kv">
+              <span>Render Mode</span><span class="field">Screen Space - Overlay</span>
+              <span>Pixel Perfect</span><span class="field">false</span>
+            </div>
+          </div>
+          <div class="component">
+            <h3>Canvas Scaler</h3>
+            <div class="kv">
+              <span>UI Scale Mode</span><span class="field">Scale With Screen Size</span>
+              <span>Reference</span><span class="field">640 x 1500</span>
+              <span>Match</span><span class="field">0.5</span>
+            </div>
+          </div>
+          <div class="component">
+            <h3>Generated Report</h3>
+            <div class="kv">
+              <span>Images</span><span class="field">35</span>
+              <span>Missing</span><span class="field">0</span>
+              <span>Hash Match</span><span class="field">4 renamed PNGs</span>
+              <span>Control Nodes</span><span class="field">10</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel project">
+        <div class="tabbar"><div class="tab">Project</div><div class="tab dim">Console</div></div>
+        <div class="project-body">
+          <div class="folders">
+            ▾ Assets<br />
+            &nbsp;&nbsp;▾ GirlsGame<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;▾ Editor<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▾ Resources<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▸ Bg<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▸ Panel<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▸ Btn<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;export_manifest.json<br />
+            &nbsp;&nbsp;▾ PSDUIRestore<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;▾ Generated
+          </div>
+          <div class="assets">
+            <div class="asset"><div class="thumb"></div><div class="asset-name">Bg_Login_renamed.png</div></div>
+            <div class="asset"><div class="thumb"></div><div class="asset-name">Panel_Main.png</div></div>
+            <div class="asset"><div class="thumb"></div><div class="asset-name">Btn_Start_v2.png</div></div>
+            <div class="asset"><div class="thumb"></div><div class="asset-name">Icon_Gem.png</div></div>
+            <div class="asset"><div class="thumb"></div><div class="asset-name">Top_Bar.png</div></div>
+            <div class="asset"><div class="thumb"></div><div class="asset-name">Font_Title.png</div></div>
+            <div class="asset"><div class="thumb"></div><div class="asset-name">AvatarHero.png</div></div>
+            <div class="asset"><div class="thumb"></div><div class="asset-name">export_manifest.json</div></div>
+            <div class="asset"><div class="thumb"></div><div class="asset-name">Login.prefab</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="plugin-window">
+      <div class="plugin-title"><span>PSD UI Restore</span><span>⋮  □  ×</span></div>
+      <div class="plugin-body">
+        <div class="plugin-label">Export Folder</div>
+        <div class="path-row">
+          <div class="path">D:/Test2026/Assets/GirlsGame/Editor/Resources</div>
+          <div class="btn">Select</div>
+        </div>
+        <div class="info">
+          <div class="info-icon">!</div>
+          <div>
+            Generated 35 Image nodes, missing 0. Prefab saved at<br />
+            Assets/PSDUIRestore/Generated/Login_Start.prefab.<br />
+            Hash: 4, same-folder size: 2.
+          </div>
+        </div>
+        <div class="build">Build UGUI Prefab</div>
+
+        <div class="plugin-section">Manifest</div>
+        <div class="manifest-table">
+          <div class="k">Tool</div><div>PSD Auto Slicer</div>
+          <div class="k">Version</div><div>0.2.49</div>
+          <div class="k">Source</div><div>大富翁-开始.psd</div>
+          <div class="k">Items</div><div>35</div>
+          <div class="k">Canvas Size</div><div>640 x 1500</div>
+        </div>
+
+        <div class="plugin-section">Matched Resources</div>
+        <div class="match-list">
+          <span class="tag">sha256</span> Bg_Login_renamed.png → Bg/Bg_Login<br />
+          <span class="tag">sha256</span> Btn_Start_v2.png → Center/Btn/Btn_Start<br />
+          <span class="tag">folder+size</span> 滑动选中.png → Panel/Scroll_Selected<br />
+          <span class="tag">file</span> Panel_Main.png → Center/Panel/Panel_Main
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

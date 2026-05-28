@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Unity UI Restore Plugin Feasibility</title>
+    <style>
+      :root {
+        --ink: #17212b;
+        --muted: #5f6e7c;
+        --paper: #f7f3ea;
+        --panel: #fffaf0;
+        --line: #d8cdb9;
+        --green: #1c8b72;
+        --blue: #286a9b;
+        --red: #c5503f;
+        --gold: #c9892b;
+        --dark: #26313b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #ece4d4;
+        color: var(--ink);
+        font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      }
+
+      .poster {
+        width: 1600px;
+        min-height: 2600px;
+        padding: 76px 86px 96px;
+        background:
+          linear-gradient(90deg, rgba(23, 33, 43, 0.035) 1px, transparent 1px),
+          linear-gradient(rgba(23, 33, 43, 0.035) 1px, transparent 1px),
+          radial-gradient(circle at 15% 6%, rgba(201, 137, 43, 0.18), transparent 340px),
+          radial-gradient(circle at 88% 10%, rgba(40, 106, 155, 0.15), transparent 360px),
+          var(--paper);
+        background-size: 32px 32px, 32px 32px, auto, auto, auto;
+      }
+
+      .top {
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 54px;
+        align-items: end;
+        margin-bottom: 46px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        background: #f2cf66;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        margin: 28px 0 20px;
+        font-family: Georgia, "Songti SC", serif;
+        font-size: 86px;
+        line-height: 1.03;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 960px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 32px;
+        line-height: 1.42;
+        font-weight: 600;
+      }
+
+      .verdict {
+        position: relative;
+        padding: 30px;
+        border: 3px solid var(--ink);
+        background: var(--dark);
+        color: #fdf7e9;
+        box-shadow: 12px 12px 0 rgba(23, 33, 43, 0.18);
+      }
+
+      .verdict strong {
+        display: block;
+        margin-bottom: 14px;
+        color: #f2cf66;
+        font-size: 30px;
+      }
+
+      .verdict p {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.48;
+        font-weight: 650;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin: 44px 0 22px;
+        font-family: Georgia, "Songti SC", serif;
+        font-size: 42px;
+        font-weight: 900;
+      }
+
+      .section-title::before {
+        content: "";
+        width: 44px;
+        height: 18px;
+        background: var(--red);
+        border: 2px solid var(--ink);
+        box-shadow: 5px 5px 0 rgba(23, 33, 43, 0.18);
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+
+      .card {
+        min-height: 250px;
+        padding: 28px;
+        border: 2px solid var(--ink);
+        background: var(--panel);
+        box-shadow: 8px 8px 0 rgba(23, 33, 43, 0.12);
+      }
+
+      .card h3 {
+        margin: 0 0 18px;
+        font-size: 30px;
+        line-height: 1.16;
+      }
+
+      .card p,
+      .card li {
+        color: var(--muted);
+        font-size: 21px;
+        line-height: 1.46;
+        font-weight: 640;
+      }
+
+      .card p {
+        margin: 0;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 24px;
+      }
+
+      li + li {
+        margin-top: 8px;
+      }
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .step {
+        position: relative;
+        padding: 26px 24px 28px;
+        border: 2px solid var(--ink);
+        background: #fdf8ea;
+      }
+
+      .step::after {
+        content: "→";
+        position: absolute;
+        top: 50%;
+        right: -26px;
+        transform: translateY(-50%);
+        z-index: 2;
+        width: 34px;
+        height: 34px;
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        background: #f2cf66;
+        text-align: center;
+        line-height: 30px;
+        font-size: 24px;
+        font-weight: 900;
+      }
+
+      .step:last-child::after {
+        display: none;
+      }
+
+      .step b {
+        display: block;
+        color: var(--blue);
+        font-size: 21px;
+        margin-bottom: 12px;
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 28px;
+      }
+
+      .step span {
+        color: var(--muted);
+        font-size: 19px;
+        line-height: 1.42;
+        font-weight: 650;
+      }
+
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+      }
+
+      .code {
+        padding: 24px;
+        border: 2px solid var(--ink);
+        background: #1d2933;
+        color: #e9f2ed;
+        font-family: "SF Mono", "Menlo", monospace;
+        font-size: 22px;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        box-shadow: 8px 8px 0 rgba(23, 33, 43, 0.16);
+      }
+
+      .decision {
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 28px;
+        align-items: stretch;
+      }
+
+      .badge-stack {
+        display: grid;
+        gap: 15px;
+      }
+
+      .badge {
+        padding: 20px 22px;
+        border: 2px solid var(--ink);
+        background: #fffaf0;
+        font-size: 24px;
+        font-weight: 850;
+        box-shadow: 6px 6px 0 rgba(23, 33, 43, 0.12);
+      }
+
+      .badge:nth-child(1) { border-left: 16px solid var(--green); }
+      .badge:nth-child(2) { border-left: 16px solid var(--blue); }
+      .badge:nth-child(3) { border-left: 16px solid var(--gold); }
+      .badge:nth-child(4) { border-left: 16px solid var(--red); }
+
+      .matrix {
+        border: 2px solid var(--ink);
+        background: var(--panel);
+        box-shadow: 8px 8px 0 rgba(23, 33, 43, 0.12);
+        overflow: hidden;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 250px 1fr 220px;
+        border-bottom: 2px solid var(--line);
+      }
+
+      .row:last-child {
+        border-bottom: 0;
+      }
+
+      .row > div {
+        padding: 20px 22px;
+        font-size: 22px;
+        line-height: 1.35;
+        font-weight: 700;
+      }
+
+      .row.head > div {
+        background: var(--dark);
+        color: #fff8e7;
+        font-size: 23px;
+      }
+
+      .row > div + div {
+        border-left: 2px solid var(--line);
+      }
+
+      .ok { color: var(--green); }
+      .warn { color: var(--gold); }
+      .manual { color: var(--red); }
+
+      .final {
+        margin-top: 48px;
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 28px;
+        align-items: stretch;
+      }
+
+      .big-callout {
+        padding: 34px;
+        border: 3px solid var(--ink);
+        background: #f2cf66;
+        box-shadow: 12px 12px 0 rgba(23, 33, 43, 0.18);
+      }
+
+      .big-callout h2 {
+        margin: 0 0 16px;
+        font-family: Georgia, "Songti SC", serif;
+        font-size: 46px;
+      }
+
+      .big-callout p {
+        margin: 0;
+        font-size: 27px;
+        line-height: 1.45;
+        font-weight: 780;
+      }
+
+      .mini {
+        padding: 28px;
+        border: 3px solid var(--ink);
+        background: var(--green);
+        color: #f8fff7;
+        box-shadow: 12px 12px 0 rgba(23, 33, 43, 0.18);
+      }
+
+      .mini strong {
+        display: block;
+        margin-bottom: 14px;
+        font-size: 30px;
+      }
+
+      .mini span {
+        font-size: 23px;
+        line-height: 1.42;
+        font-weight: 680;
+      }
+
+      .scoreboard {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+      }
+
+      .score {
+        padding: 24px;
+        border: 2px solid var(--ink);
+        background: #fffaf0;
+        box-shadow: 7px 7px 0 rgba(23, 33, 43, 0.12);
+      }
+
+      .score b {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .score strong {
+        display: block;
+        color: var(--ink);
+        font-size: 36px;
+        line-height: 1.1;
+      }
+
+      .score span {
+        display: block;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 19px;
+        line-height: 1.34;
+        font-weight: 650;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="poster">
+      <section class="top">
+        <div>
+          <div class="eyebrow">Feasibility Review · PSD Auto Slicer → Unity</div>
+          <h1>Unity 界面还原插件可行性评估</h1>
+          <p class="lead">基于切图 PNG 与 `export_manifest.json`，可以进一步做 Unity Editor 插件，自动生成 Canvas/Prefab，并支持资源改名、删减与已有组件 Prefab 替换。</p>
+        </div>
+        <aside class="verdict">
+          <strong>评估结论</strong>
+          <p>可行，建议分阶段实现。MVP 能还原布局；生产级版本必须让 JSON 记录“资产身份”，并提供映射复核与 Prefab Registry。</p>
+        </aside>
+      </section>
+
+      <section class="scoreboard">
+        <div class="score">
+          <b>布局还原</b>
+          <strong>高可行</strong>
+          <span>manifest 已有位置、尺寸、层级路径，可生成 Unity RectTransform。</span>
+        </div>
+        <div class="score">
+          <b>资源追踪</b>
+          <strong>需增强</strong>
+          <span>专业同学会重命名和删图，不能只依赖文件名。</span>
+        </div>
+        <div class="score">
+          <b>组件复用</b>
+          <strong>可支持</strong>
+          <span>通过规则或登记表，将切图节点替换为已有 UI Prefab。</span>
+        </div>
+        <div class="score">
+          <b>团队交付</b>
+          <strong>值得做</strong>
+          <span>关键收益是减少手工摆 UI，并输出可控节点层级。</span>
+        </div>
+      </section>
+
+      <div class="section-title">一、输入条件与核心难点</div>
+      <section class="grid-3">
+        <article class="card">
+          <h3>已有输入足够做 MVP</h3>
+          <p>当前 manifest 包含 `layerPath / x / y / width / height / file`，足以生成基础 Canvas 和 Image 节点。</p>
+        </article>
+        <article class="card">
+          <h3>文件名不是稳定身份</h3>
+          <p>资源会被专业同学改名、删除、合并；如果 Unity 只按文件名查找，导入链路会频繁断开。</p>
+        </article>
+        <article class="card">
+          <h3>Prefab 替换是关键需求</h3>
+          <p>按钮、标签、通用弹窗等不一定用 PNG，还可能直接实例化已有组件 Prefab，并继承其脚本和动效结构。</p>
+        </article>
+      </section>
+
+      <div class="section-title">二、关键方案：JSON 标记资产身份</div>
+      <section class="compare">
+        <div class="code">{
+  "id": "psd_9f2a_layer_1038",
+  "assetType": "Btn",
+  "layerPath": "Panel/Btn/Confirm",
+  "rect": { "x": 310, "y": 612, "w": 188, "h": 72 },
+  "fileName": "Btn_Confirm.png",
+  "sha256": "exact-content-hash",
+  "visualHash": "perceptual-hash",
+  "prefabHint": "ButtonConfirm"
+}</div>
+        <div class="card">
+          <h3>改名后仍能识别的办法</h3>
+          <ul>
+            <li>`id` 跟 PSD 图层绑定，文件改名也不变。</li>
+            <li>`sha256` 用于图片没变、只改名的精确匹配。</li>
+            <li>`visualHash` 用于图片被压缩或重新导出后的近似匹配。</li>
+            <li>`layerPath + rect + assetType` 用于重复图片的节点归属判断。</li>
+            <li>`prefabHint` 给 Unity 侧替换组件提供线索。</li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="section-title">三、Unity 插件导入策略</div>
+      <section class="decision">
+        <div class="badge-stack">
+          <div class="badge">1. 人工映射最高优先级</div>
+          <div class="badge">2. Prefab Registry 替换</div>
+          <div class="badge">3. 内容指纹自动找图</div>
+          <div class="badge">4. 模糊匹配进入复核</div>
+        </div>
+        <div class="matrix">
+          <div class="row head">
+            <div>场景</div>
+            <div>处理方式</div>
+            <div>可靠度</div>
+          </div>
+          <div class="row">
+            <div>只改文件名</div>
+            <div>扫描 PNG，计算 `sha256`，回连 manifest item。</div>
+            <div class="ok">很高</div>
+          </div>
+          <div class="row">
+            <div>压缩或重导出</div>
+            <div>用 `visualHash + 尺寸 + 类型` 找候选。</div>
+            <div class="warn">中高</div>
+          </div>
+          <div class="row">
+            <div>重复图片</div>
+            <div>结合 `layerPath/rect/zIndex`，必要时弹出确认。</div>
+            <div class="warn">中等</div>
+          </div>
+          <div class="row">
+            <div>资源被删除</div>
+            <div>生成空节点或标记 skip，不阻塞整体 Prefab。</div>
+            <div class="ok">可控</div>
+          </div>
+          <div class="row">
+            <div>已有 UI 组件</div>
+            <div>按 `prefabHint/assetType/name rule` 实例化 Prefab。</div>
+            <div class="ok">高</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-title">四、推荐实现路线</div>
+      <section class="pipeline">
+        <div class="step">
+          <b>Phase 01</b>
+          <strong>MVP 还原</strong>
+          <span>读取现有 manifest，按坐标和层级生成 Canvas Prefab。</span>
+        </div>
+        <div class="step">
+          <b>Phase 02</b>
+          <strong>身份追踪</strong>
+          <span>在导出阶段补 `assetId / sha256 / visualHash / zIndex`。</span>
+        </div>
+        <div class="step">
+          <b>Phase 03</b>
+          <strong>映射面板</strong>
+          <span>Unity 内展示缺失、重复、疑似匹配，允许人工确认。</span>
+        </div>
+        <div class="step">
+          <b>Phase 04</b>
+          <strong>组件替换</strong>
+          <span>接入 Prefab Registry，生成适合程序和动效维护的层级。</span>
+        </div>
+      </section>
+
+      <section class="final">
+        <div class="big-callout">
+          <h2>最终判断</h2>
+          <p>这个插件值得做。最小版本可以快速验证还原效果；生产版本的关键不是“把图片摆回去”，而是建立资源身份、组件替换和人工复核三套机制，确保专业整理后的资源仍能稳定生成 Unity UI。</p>
+        </div>
+        <div class="mini">
+          <strong>一句话原则</strong>
+          <span>不要让 JSON 只记“图片叫什么”，要让它记“图片是谁、在哪里、能否被 Prefab 替换”。</span>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
